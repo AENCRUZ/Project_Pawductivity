@@ -20,6 +20,8 @@ public static class PawTheme
     public static readonly Color XpBar           = Color.FromArgb(140, 200, 255);  // periwinkle
     public static readonly Color ButtonText      = Color.White;
     public static readonly Color CompletedTask   = Color.FromArgb(150, 220, 150);  // soft green
+    public static readonly Color TextGreen       = Color.FromArgb(0, 100, 0);  // dark green
+    public static readonly Color OverdueTask     = Color.FromArgb(255,  77,  77);  // soft red
     public static readonly Color CardBorder      = Color.FromArgb(255, 160, 190);
 
     // ── Fonts ────────────────────────────────────────────────────────
