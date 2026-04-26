@@ -62,4 +62,13 @@ public class DogPet : Pet
         PetMood.Sick    => $"{Name} really needs you to be productive! 🤒",
         _               => $"{Name} is here for you!"
     };
+    public override string StageEmoji => Stage switch
+    {
+        PetEvolution.Egg => "🥚",
+        PetEvolution.Baby => "🐶",
+        PetEvolution.Junior => "🐕",
+        PetEvolution.Adult => "🦮",
+        PetEvolution.Legend => "✨🐕‍🦺✨",
+        _ => "🐶"
+    };
 }
