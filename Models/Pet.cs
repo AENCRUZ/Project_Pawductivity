@@ -5,7 +5,6 @@ public enum PetEvolution { Egg, Baby, Junior, Adult, Legend }
 
 /// <summary>
 /// Base class for all pets. Demonstrates Encapsulation + Inheritance.
-/// </summary>
 public abstract class Pet
 {
     // ── Private backing fields (Encapsulation) ───────────────────────
@@ -16,7 +15,7 @@ public abstract class Pet
     private int _coins;
 
     // ── Properties ───────────────────────────────────────────────────
-    public string Name        { get; set; }
+    public string Name { get; set; }
     public PetEvolution Stage { get; protected set; } = PetEvolution.Egg;
 
     public int Health
@@ -53,43 +52,48 @@ public abstract class Pet
         set => _coins = Math.Max(0, value);
     }
 
+    // ── Derived Properties ───────────────────────────────────────────
     public PetMood CurrentMood => Mood switch
     {
         >= 70 => PetMood.Happy,
         >= 40 => PetMood.Neutral,
         >= 20 => PetMood.Sad,
-        _     => PetMood.Sick
+        _ => PetMood.Sick
     };
 
-    /// <summary>Returns the emoji representing this pet's current state.</summary>
+    /// <summary>Returns the emoji representing this pet's mood.</summary>
     public string MoodEmoji => CurrentMood switch
     {
-        PetMood.Happy   => "🐾✨",
+        PetMood.Happy => "🐾✨",
         PetMood.Neutral => "🐾",
-        PetMood.Sad     => "😿",
-        PetMood.Sick    => "🤒",
-        _               => "🐾"
+        PetMood.Sad => "😿",
+        PetMood.Sick => "🤒",
+        _ => "🐾"
     };
 
-    public string StageEmoji => Stage switch
+    /// <summary>
+    /// Returns the emoji representing the pet's evolution stage.
+    /// Can be overridden by specific pet types (e.g., DogPet).
+    /// </summary>
+    public virtual string StageEmoji => Stage switch
     {
-        PetEvolution.Egg    => "🥚",
-        PetEvolution.Baby   => "🐣",
-        PetEvolution.Junior => "🐱",
-        PetEvolution.Adult  => "🐈",
+        PetEvolution.Egg => "🥚",
+        PetEvolution.Baby => "🐱",   // kitten (closest we have)
+        PetEvolution.Junior => "🐈‍⬛", // growing cat
+        PetEvolution.Adult => "🐈",   // adult cat
         PetEvolution.Legend => "✨🐈‍⬛✨",
-        _                   => "🥚"
+        _ => "🐱"
     };
 
     // ── Constructor ──────────────────────────────────────────────────
     protected Pet(string name)
     {
-        Name   = name;
+        Name = name;
         Health = 80;
-        Mood   = 70;
-        XP     = 0;
+        Mood = 70;
+        XP = 0;
         _level = 1;
-        Coins  = 0;
+        Coins = 0;
     }
 
     // ── Abstract methods (Polymorphism) ──────────────────────────────
@@ -101,6 +105,7 @@ public abstract class Pet
     private void CheckLevelUp()
     {
         int xpNeeded = _level * 50;
+
         if (_xp >= xpNeeded)
         {
             _xp -= xpNeeded;
@@ -114,10 +119,10 @@ public abstract class Pet
         Stage = _level switch
         {
             >= 10 => PetEvolution.Legend,
-            >= 7  => PetEvolution.Adult,
-            >= 4  => PetEvolution.Junior,
-            >= 2  => PetEvolution.Baby,
-            _     => PetEvolution.Egg
+            >= 7 => PetEvolution.Adult,
+            >= 4 => PetEvolution.Junior,
+            >= 2 => PetEvolution.Baby,
+            _ => PetEvolution.Egg
         };
     }
 
