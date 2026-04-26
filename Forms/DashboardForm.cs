@@ -98,7 +98,6 @@ public class DashboardForm : Form
         topBar.Controls.AddRange([lblApp, lblUser]);
 
         // Position lblUser after AutoSize resolves (deferred via Load/Shown).
-        // We approximate here; it will be corrected on first layout pass.
         lblUser.Location = new Point(topBar.Width - 200, (TopBarH - 18) / 2);
 
         // ── LEFT: PET PANEL ──────────────────────────────────────────
@@ -121,6 +120,8 @@ public class DashboardForm : Form
         {
             Font = new Font("Segoe UI Emoji", 52f),
             AutoSize = false,
+            // FIX 1: height 86→100 so 52pt glyphs aren't clipped at bottom;
+            //         x/width now use InnerPad so it matches the rest of the panel.
             Size = new Size(PetPanelW - InnerPad * 2, 110),
             Location = new Point(InnerPad, InnerPad + 6),
             TextAlign = ContentAlignment.MiddleCenter,
@@ -164,6 +165,8 @@ public class DashboardForm : Form
         };
 
         // ── Stat bars: stacked with consistent spacing ──
+        // FIX 3b: barSlotH 42→44 and firstBarY uses explicit 20px level-label height
+        //         (+10 gap) instead of the fragile AutoSize-derived +22 guess.
         int barSlotH = 10 + StatBarLblGap + StatBarH + 8;  // 
         int firstBarY = _lblLevel.Location.Y + 20 + 10;      
 
@@ -175,6 +178,7 @@ public class DashboardForm : Form
         _pbXp = _pbXpOut;
 
         // ── Coins: anchored to last bar's Bottom, not to AutoSize label ──
+        // FIX 4: was _lblCoins.Location.Y + 22 + 10 (AutoSize guess); now _pbXp.Bottom + 14.
         _lblCoins = new Label
         {
             Font = new Font("Segoe UI", 10f, FontStyle.Bold),
@@ -185,6 +189,8 @@ public class DashboardForm : Form
         };
 
         // ── Quick-stats sub-panel ──
+        // FIX 5: was _lblCoins.Location.Y + 22 + 10 (same AutoSize fragility);
+        //         now uses explicit 24px coin-label height + 8px gap.
         var statPanel = new Panel
         {
             Location = new Point(InnerPad, _lblCoins.Location.Y + 24 + 8),
@@ -198,6 +204,7 @@ public class DashboardForm : Form
         statPanel.Controls.AddRange([_lblToday, _lblStreak, _lblPending]);
 
         // ── Nav buttons: anchored to bottom of pet panel ──
+        // ButtonH = 34; placed 14 px above the panel bottom, 10 px gap between.
         int navBtnY = statPanel.Bottom + 12;
         _btnShop = new Button { Text = "🛍️ Shop", Location = new Point(InnerPad, navBtnY), Width = NavButtonW, Height = ButtonH };
         _btnStats = new Button { Text = "📊 Stats", Location = new Point(InnerPad + NavButtonW + 8, navBtnY), Width = NavButtonW, Height = ButtonH };
@@ -215,7 +222,7 @@ public class DashboardForm : Form
         // ── RIGHT: TASK PANEL ────────────────────────────────────────
         // Sits Margin to the right of the pet panel; stretches on resize.
         int taskPanelX = Margin + PetPanelW + Margin;
-        int taskPanelW = Width - taskPanelX - Margin - 16; 
+        int taskPanelW = Width - taskPanelX - Margin - 16; // 16 = scrollbar gutter estimate
 
         var taskPanel = new Panel
         {
@@ -256,7 +263,7 @@ public class DashboardForm : Form
                             AnchorStyles.Bottom | AnchorStyles.Right,
         };
 
-        // Columns: emoji | Task | Priority | Due Date | Status
+        // Columns: emoji (fixed) | Task (stretches) | Priority | Due Date | Status
         _lvTasks.Columns.Add("", 30);
         _lvTasks.Columns.Add("Task", 220);
         _lvTasks.Columns.Add("Priority", 84);
@@ -368,8 +375,8 @@ public class DashboardForm : Form
         bool isSelected = (e.State & ListViewItemStates.Selected) != 0;
 
         Color bg = isSelected ? PawTheme.Secondary :
-                   task.IsCompleted ? Color.PaleGreen :
-                   task.IsOverdue ? Color.FromArgb(255, 220, 220) :
+                   task.IsCompleted ? Color.FromArgb(144, 238, 144) :
+                   task.IsOverdue ? Color.FromArgb(255, 77, 77) :
                    _lvTasks.BackColor;
 
         using (var brush = new SolidBrush(bg))
@@ -382,7 +389,7 @@ public class DashboardForm : Form
     {
         if (e.Item?.Tag is not TaskItem task) return;
 
-        Color fg = task.IsCompleted ? Color.Green : Color.Black;
+        Color fg = task.IsCompleted ? Color.Black : Color.Black;
 
         var flags = TextFormatFlags.Left |
                     TextFormatFlags.VerticalCenter |
