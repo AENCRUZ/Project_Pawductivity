@@ -159,31 +159,134 @@ Your pet's mood is a 0–100 value that maps to one of four states:
 
 ## 🎓 OOP Principles
 
-Pawductivity is designed as a showcase of core Object-Oriented Programming concepts:
+Pawductivity is built as a deliberate showcase of all four core OOP concepts. Here's exactly where and how each one appears in the code.
+
+---
 
 ### 🔒 Encapsulation — `Pet.cs`
-`_health`, `_mood`, `_xp`, `_level`, and `_coins` are private backing fields. Their public properties add controlled logic on set — for example, `Health` clamps its value between 0 and 100, `XP` automatically triggers `CheckLevelUp()`, and `Coins` can never go negative. No code outside `Pet` can break these invariants.
 
-### 🧬 Inheritance — `Pet.cs`, `PetTypes.cs`
-`CatPet` and `DogPet` both extend the `abstract` `Pet` base class. Level-up logic (`CheckLevelUp`), evolution progression (`Evolve`), and derived properties like `CurrentMood` and `MoodEmoji` are defined once in `Pet` and shared by both subtypes automatically.
+All five stat fields are declared `private` — nothing outside `Pet` can touch them directly:
+
+```csharp
+private int _health;
+private int _mood;
+private int _xp;
+private int _level;
+private int _coins;
+```
+
+Each public property enforces its own invariant on `set`:
+
+```csharp
+public int Health
+{
+    get => _health;
+    set => _health = Math.Clamp(value, 0, 100);  // can't go below 0 or above 100
+}
+
+public int XP
+{
+    get => _xp;
+    set { _xp = value; CheckLevelUp(); }  // every XP gain automatically checks for level-up
+}
+
+public int Coins
+{
+    get => _coins;
+    set => _coins = Math.Max(0, value);   // coins can never go negative
+}
+```
+
+`_level` is even stricter — its setter is `private`, so only `Pet`'s own internal `CheckLevelUp()` method can increment it. No form or manager can manually set the pet's level.
+
+---
+
+### 🧬 Inheritance — `Pet.cs` → `CatPet` / `DogPet`
+
+`Pet` is declared `abstract`, which means it can never be instantiated directly — you always get a `CatPet` or `DogPet`. The base class owns all shared behavior:
+
+- **Level-up logic** (`CheckLevelUp`, `Evolve`) — runs identically for both pets
+- **Derived properties** (`CurrentMood`, `MoodEmoji`, `XpForNextLevel`) — computed once, inherited by both
+- **Starting stats** — `Health = 80`, `Mood = 70`, `Level = 1` set in the base constructor
+
+`CatPet` and `DogPet` call `base(name)` to reuse that constructor, then only add what's unique to them.
+
+```csharp
+public abstract class Pet { ... }          // base — shared logic lives here
+public class CatPet : Pet { ... }          // inherits everything, adds cat personality
+public class DogPet  : Pet { ... }         // inherits everything, adds dog personality
+```
+
+---
 
 ### 🔀 Polymorphism — `PetTypes.cs`
-`ReactToTaskCompleted()`, `ReactToTaskMissed()`, and `GetGreeting()` are declared `abstract` in `Pet` and implemented differently in each subclass. Cats gain more XP but lose mood faster (`-20` vs `-12`); dogs recover health faster and give warmer responses. `StageEmoji` is `virtual` so dogs can override the default cat emoji set with their own.
+
+Three methods are declared `abstract` in `Pet`, forcing every subclass to provide its own implementation:
+
+```csharp
+public abstract void ReactToTaskCompleted(TaskItem task);
+public abstract void ReactToTaskMissed();
+public abstract string GetGreeting();
+```
+
+The same call on different pet types produces completely different behavior:
+
+| Behavior | 🐱 CatPet | 🐶 DogPet |
+|---|---|---|
+| Task completed (High) | `+30 XP, +15 Mood, +5 Health` | `+25 XP, +20 Mood, +8 Health` |
+| Task missed | `−20 Mood, −8 Health` | `−12 Mood, −10 Health` |
+| Greeting (Happy) | `"[Name] purrs and bumps your head! 🐱💕"` | `"[Name] wags their tail super fast! 🐶💖"` |
+
+`StageEmoji` is declared `virtual` in `Pet` (with a default cat emoji set) and `override`n in `DogPet` to return dog-specific emojis per evolution stage — without touching any cat logic.
+
+`DashboardForm` and `GameManager` never check `if pet is CatPet` — they just call the method and let the object decide how to respond. That's polymorphism in action.
+
+---
 
 ### 🏗️ Abstraction — `GameManager.cs`
-All game state — task management, pet updates, streak tracking, shop purchases — is coordinated through `GameManager`. Forms call methods like `CompleteTask()` or `BuyItem()` without knowing how XP is calculated, how evolution is triggered, or how stats are clamped. The complexity is hidden behind a clean interface.
+
+`GameManager` is the single source of truth for all game state. Every form interacts with the game through it — none of them touch `Pet`, `TaskItem`, or streak logic directly.
+
+```csharp
+// What DashboardForm calls:
+_gm.CompleteTask(task.Id);
+_gm.AddTask(dlg.Result);
+_gm.DeleteTask(task.Id);
+_gm.BuyItem(selectedItem);
+
+// What GameManager actually does internally (hidden from forms):
+// → finds the task, marks it complete, calls pet.ReactToTaskCompleted(task),
+//   increments TotalCompleted, updates streak dates, checks LongestStreak
+```
+
+`StatsForm` reads `_gm.CompletionRate`, `_gm.CurrentStreak`, `_gm.LongestStreak` without knowing how any of those are computed. The decay timer in `DashboardForm` just calls `_gm.ApplyOverduePenalties()` every 60 seconds — it has no idea which tasks are overdue or how much health each one costs.
 
 ---
 
 ## 🌸 Theming
 
-All UI colors and fonts are centralized in **`PawTheme.cs`**. To retheme the entire app, you only need to update values in one file — no digging through individual forms.
+All colors and fonts live in `PawTheme.cs`. Change a value here and it updates every form, button, and progress bar in the app — no hunting through individual files needed.
 
 ```csharp
-// PawTheme.cs — change here, updates everywhere
-public static Color Primary   = Color.FromArgb(255, 105, 180); // hot pink
-public static Color Background = Color.FromArgb(255, 240, 245); // soft blush
+// Colors
+public static readonly Color Background = Color.FromArgb(255, 240, 245); // soft blush
+public static readonly Color Surface    = Color.FromArgb(255, 220, 230); // light pink card
+public static readonly Color Primary    = Color.FromArgb(255, 105, 150); // rose pink
+public static readonly Color Secondary  = Color.FromArgb(255, 182, 193); // pastel pink
+public static readonly Color TextDark   = Color.FromArgb( 80,  30,  50); // deep rose-brown
+public static readonly Color TextMuted  = Color.FromArgb(160,  90, 120);
+public static readonly Color HealthBar  = Color.FromArgb(255,  80, 120);
+public static readonly Color MoodBar    = Color.FromArgb(255, 200,  80); // sunny yellow
+public static readonly Color XpBar      = Color.FromArgb(140, 200, 255); // periwinkle
+
+// Fonts
+public static readonly Font FontTitle   = new("Segoe UI", 22f, FontStyle.Bold);
+public static readonly Font FontHeading = new("Segoe UI", 13f, FontStyle.Bold);
+public static readonly Font FontBody    = new("Segoe UI",  9f, FontStyle.Regular);
+public static readonly Font FontSmall   = new("Segoe UI",  8f, FontStyle.Regular);
 ```
+
+`PawTheme.StyleButton(btn)` and `PawTheme.StyleButton(btn, outlined: true)` apply consistent pink styling (including hover effects) to every button in the app from a single helper method.
 
 ---
 
