@@ -15,7 +15,7 @@
 ![IDE](https://img.shields.io/badge/IDE-Visual_Studio-5C2D91?style=flat-square&logo=visualstudio)
 ![Theme](https://img.shields.io/badge/Theme-Pink_Kawaii_🌸-ff69b4?style=flat-square)
 
-> *Stay productive. Keep your pet happy. Don't let your tasks go overdue.* 🐱🐶
+ *Stay productive. Keep your pet happy. Don't let your tasks go overdue.* 🐱🐶
 
 </div>
 
