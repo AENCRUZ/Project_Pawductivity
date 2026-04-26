@@ -37,7 +37,7 @@ public class DashboardForm : Form
 
     // ── Layout constants ────────────────────────────────────────────
     // Centralising all magic numbers here makes future tweaks trivial.
-    private const int Margin = 16;  // outer gutter
+    private new int Margin = 16;  // outer gutter
     private const int InnerPad = 14;  // padding inside panels
     private const int TopBarH = 52;
     private const int PetPanelW = 288;
@@ -116,7 +116,6 @@ public class DashboardForm : Form
         };
         petPanel.Paint += (s, e) => PaintBorder(e, petPanel);
 
-        // ── Pet emoji: large, centred, top of panel ──
         // ── Pet emoji: large, centred, top of panel ──
         _lblPetEmoji = new Label
         {
@@ -370,29 +369,48 @@ public class DashboardForm : Form
     // ── CUSTOM LISTVIEW DRAW ─────────────────────────────────────────
     private void LvTasks_DrawItem(object? sender, DrawListViewItemEventArgs e)
     {
-        if (e.Item?.Tag is not TaskItem task)
-            return;
+        // FIX 1: Always set DrawDefault to false to tell WinForms 
+        // "I am handling the background, don't use your native hover/focus styles."
+        e.DrawDefault = false;
 
-        Color bg = e.Item.Selected
-            ? PawTheme.Secondary
-            : task.IsCompleted
-                ? PawTheme.CompletedTask
-                : task.IsOverdue
-                    ? Color.FromArgb(255, 220, 220)
-                    : PawTheme.Background;
+        if (e.Item?.Tag is not TaskItem task) return;
 
-        e.Graphics.FillRectangle(new SolidBrush(bg), e.Bounds);
-        e.DrawFocusRectangle();
+        // Use the event state for selection, and ignore hover entirely 
+        // to keep the background stable.
+        bool isSelected = (e.State & ListViewItemStates.Selected) != 0;
+
+        Color bg = isSelected ? PawTheme.Secondary :
+                   task.IsCompleted ? PawTheme.CompletedTask :
+                   task.IsOverdue ? Color.FromArgb(255, 220, 220) :
+                   _lvTasks.BackColor;
+
+        using (var brush = new SolidBrush(bg))
+        {
+            e.Graphics.FillRectangle(brush, e.Bounds);
+        }
     }
 
     private void LvTasks_DrawSubItem(object? sender, DrawListViewSubItemEventArgs e)
     {
-        if (e.Item?.Tag is not TaskItem task)
-            return;
+        // FIX 2: If we don't have a task, draw nothing.
+        if (e.Item?.Tag is not TaskItem task) return;
 
-        Color fg = task.IsCompleted ? Color.Gray : PawTheme.TextDark;
-        var flags = TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.EndEllipsis;
-        TextRenderer.DrawText(e.Graphics, e.SubItem!.Text, _lvTasks.Font, e.Bounds, fg, flags);
+        // Determine text color
+        Color fg = task.IsCompleted ? Color.Green : PawTheme.TextDark;
+
+        var flags = TextFormatFlags.Left |
+                    TextFormatFlags.VerticalCenter |
+                    TextFormatFlags.EndEllipsis |
+                    TextFormatFlags.NoPrefix;
+
+        TextRenderer.DrawText(
+            e.Graphics,
+            e.SubItem.Text,
+            _lvTasks.Font,
+            e.Bounds,
+            fg,
+            flags
+        );
     }
 
     // ── BUTTON HANDLERS ──────────────────────────────────────────────
