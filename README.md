@@ -294,7 +294,7 @@ public static readonly Font FontSmall   = new("Segoe UI",  8f, FontStyle.Regular
 
 ## 👥 Team
 
-**Team LAVA** · Section CS-2202 · Batangas State University
+**Team LAVA** · CS-2202 · Batangas State University
 
 *Made with 💖 for CS 222 — Advanced Object-Oriented Programming*
 
