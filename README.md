@@ -77,6 +77,41 @@ Pawductivity/
 
 ---
 
+## 🔄 Gameplay Loop
+
+```
+Login → Add Task → Complete Task → Pet Reacts → Earn Coins → Buy Items
+           ↑                                                       |
+           └───────────────────── loop ────────────────────────────┘
+```
+
+Every task you complete rewards you and your pet. Every task you miss costs you both. The shop gives you something to work toward, and the streak system keeps you coming back daily.
+
+---
+
+## 🌱 Pet Evolution
+
+Your pet evolves through five stages as you level up. Each level costs `current_level × 50 XP` — so leveling gets progressively harder.
+
+| Stage | Level | Cat 🐱 | Dog 🐶 |
+|---|---|---|---|
+| 🥚 **Egg** | 1 | `🥚` | `🥚` |
+| 🐱 **Baby** | 2–3 | `🐱` | `🐶` |
+| 🐈 **Junior** | 4–6 | `🐈‍⬛` | `🐕` |
+| 🐈 **Adult** | 7–9 | `🐈` | `🦮` |
+| ✨ **Legend** | 10+ | `✨🐈‍⬛✨` | `✨🐕‍🦺✨` |
+
+**How XP works:** cats earn more XP per task but lose mood faster when they miss one. Dogs earn slightly less XP but are more forgiving on mood — though they take more health damage.
+
+| | High priority | Medium priority | Low priority |
+|---|---|---|---|
+| 🐱 Cat XP | +30 | +20 | +10 |
+| 🐶 Dog XP | +25 | +15 | +8 |
+
+> Each pet starts with **Health 80 · Mood 70 · Level 1 · 0 coins**. All stats are clamped between 0–100.
+
+---
+
 ## 🎮 Features
 
 | Feature | Status |
@@ -94,21 +129,49 @@ Pawductivity/
 
 ---
 
+## 🛍️ Shop Items
+
+Coins are earned by completing tasks (`XP gained ÷ 2` per task). Spend them in the shop to restore your pet's health and mood.
+
+| Item | Cost | Health | Mood |
+|---|:---:|:---:|:---:|
+| 🎀 Pink Ribbon | 10 | — | +15 |
+| 🍪 Star Cookie | 15 | +20 | +10 |
+| 🍓 Strawberry Milk | 20 | +30 | — |
+| 🌸 Flower Crown | 25 | — | +30 |
+| 🛏️ Cozy Blanket | 30 | +25 | +20 |
+| 🌈 Rainbow Toy | 40 | — | +40 |
+
+---
+
+## 😺 Mood System
+
+Your pet's mood is a 0–100 value that maps to one of four states:
+
+| Mood value | State | Emoji | Effect |
+|---|---|---|---|
+| 70–100 | Happy | `🐾✨` | Positive greetings, full reactions |
+| 40–69 | Neutral | `🐾` | Calm, waiting |
+| 20–39 | Sad | `😿` / `🥺` | Withdrawn, needs attention |
+| 0–19 | Sick | `🤒` | Urgent — complete your tasks! |
+
+---
+
 ## 🎓 OOP Principles
 
 Pawductivity is designed as a showcase of core Object-Oriented Programming concepts:
 
 ### 🔒 Encapsulation — `Pet.cs`
-Pet stats (health, mood, XP) are stored in **private fields** and accessed only through controlled public properties. Nothing outside the class can corrupt the pet's internal state directly.
+`_health`, `_mood`, `_xp`, `_level`, and `_coins` are private backing fields. Their public properties add controlled logic on set — for example, `Health` clamps its value between 0 and 100, `XP` automatically triggers `CheckLevelUp()`, and `Coins` can never go negative. No code outside `Pet` can break these invariants.
 
-### 🧬 Inheritance — `PetTypes.cs`
-`CatPet` and `DogPet` both **extend** the abstract `Pet` base class. Shared behaviors (leveling up, losing health) live in the parent; each subclass adds its own personality on top.
+### 🧬 Inheritance — `Pet.cs`, `PetTypes.cs`
+`CatPet` and `DogPet` both extend the `abstract` `Pet` base class. Level-up logic (`CheckLevelUp`), evolution progression (`Evolve`), and derived properties like `CurrentMood` and `MoodEmoji` are defined once in `Pet` and shared by both subtypes automatically.
 
 ### 🔀 Polymorphism — `PetTypes.cs`
-Methods like `ReactToTaskCompleted()`, `ReactToTaskMissed()`, and `GetGreeting()` are **overridden** in each subclass. The same method call behaves differently depending on whether the pet is a cat or a dog — no `if/else` type-checking needed.
+`ReactToTaskCompleted()`, `ReactToTaskMissed()`, and `GetGreeting()` are declared `abstract` in `Pet` and implemented differently in each subclass. Cats gain more XP but lose mood faster (`-20` vs `-12`); dogs recover health faster and give warmer responses. `StageEmoji` is `virtual` so dogs can override the default cat emoji set with their own.
 
 ### 🏗️ Abstraction — `GameManager.cs`
-All core game logic lives in `GameManager`. The UI forms never touch raw data directly — they call clean, high-level methods like `CompleteTask()` or `BuyItem()` and let the manager handle the rest.
+All game state — task management, pet updates, streak tracking, shop purchases — is coordinated through `GameManager`. Forms call methods like `CompleteTask()` or `BuyItem()` without knowing how XP is calculated, how evolution is triggered, or how stats are clamped. The complexity is hidden behind a clean interface.
 
 ---
 
@@ -124,8 +187,12 @@ public static Color Background = Color.FromArgb(255, 240, 245); // soft blush
 
 ---
 
+<div align="center">
+
 ## 👥 Team
 
 **Team LAVA** · Section CS-2202 · Batangas State University
 
 *Made with 💖 for CS 222 — Advanced Object-Oriented Programming*
+
+</div>
