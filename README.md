@@ -4,41 +4,48 @@
 
 **A Digital Pet Productivity System**
 
-*CS 222 Advanced Object-Oriented Programming*
+*CS 222 · Advanced Object-Oriented Programming · Batangas State University*
 
 ![Team](https://img.shields.io/badge/Team-LAVA-ff69b4?style=for-the-badge)
 ![Section](https://img.shields.io/badge/Section-CS--2202-c084fc?style=for-the-badge)
-![University](https://img.shields.io/badge/Batangas_State_University-blue?style=for-the-badge)
 
-![Platform](https://img.shields.io/badge/Platform-Windows-0078D4?style=flat-square&logo=windows)
-![Framework](https://img.shields.io/badge/.NET-WinForms-512BD4?style=flat-square&logo=dotnet)
-![IDE](https://img.shields.io/badge/IDE-Visual_Studio-5C2D91?style=flat-square&logo=visualstudio)
+![Platform](https://img.shields.io/badge/Windows-0078D4?style=flat-square&logo=windows&logoColor=white)
+![Framework](https://img.shields.io/badge/.NET_WinForms-512BD4?style=flat-square&logo=dotnet&logoColor=white)
+![IDE](https://img.shields.io/badge/Visual_Studio-5C2D91?style=flat-square&logo=visualstudio&logoColor=white)
 ![Theme](https://img.shields.io/badge/Theme-Pink_Kawaii_🌸-ff69b4?style=flat-square)
 
- *Stay productive. Keep your pet happy. Don't let your tasks go overdue.* 🐱🐶
+> *Stay productive. Keep your pet happy. Don't let your tasks go overdue.*
 
 </div>
 
 ---
 
-## 🚀 How to Run
+## 📖 Overview
+
+**Pawductivity** is a gamified productivity desktop app built with .NET WinForms. You adopt a virtual pet — a cat 🐱 or a dog 🐶 — and your tasks directly affect its health and happiness. Complete tasks on time and your pet thrives, levels up, and evolves. Let them go overdue, and your pet suffers the consequences.
+
+It's a productivity tool with stakes.
+
+---
+
+## 🚀 Getting Started
 
 ### Prerequisites
 
-| # | Requirement | Notes |
+| # | Requirement | Details |
 |---|---|---|
-| 1 | [Visual Studio Community 2026](https://visualstudio.microsoft.com/vs/community/) | Windows only — WinForms requires Windows |
-| 2 | **.NET Desktop Development** workload | Select during VS installation |
+| 1 | [Visual Studio Community](https://visualstudio.microsoft.com/vs/community/) | Windows only — WinForms requires Windows |
+| 2 | **.NET Desktop Development** workload | Select this during VS installation |
 
-### Steps
+### Running the App
 
 1. Open **Visual Studio Community**
 2. Click **Open a project or solution**
-3. Navigate to the `Pawductivity` folder
-4. Open `Pawductivity.slnx` *(solution file)*
-5. Press **F5** to build and run → or go to **Debug › Start Debugging**
+3. Navigate to the `Pawductivity/` folder
+4. Open `Pawductivity.slnx`
+5. Press **F5** to build and run
 
-> 💡 **Tip:** Press `Ctrl + F5` to run without the debugger — it's faster!
+> 💡 **Tip:** Use `Ctrl + F5` to run without the debugger for a faster startup.
 
 ---
 
@@ -46,26 +53,26 @@
 
 ```
 Pawductivity/
-├── 📄 Pawductivity.slnx          ← Solution file
-├── 📄 Pawductivity.csproj        ← Project file
-├── 📄 Program.cs                 ← Entry point
-├── 🎨 PawTheme.cs                ← Theme settings (colors & fonts)
+├── Pawductivity.slnx          ← Solution file
+├── Pawductivity.csproj        ← Project file
+├── Program.cs                 ← Entry point
+├── PawTheme.cs                ← Centralized theme (colors & fonts)
 │
-├── 📂 Models/
-│   ├── Pet.cs                    ← Abstract base class (Encapsulation + Inheritance)
-│   ├── PetTypes.cs               ← CatPet & DogPet (Polymorphism)
-│   ├── TaskItem.cs               ← Task data model
-│   └── ShopItem.cs               ← Shop item model
+├── Models/
+│   ├── Pet.cs                 ← Abstract base class (Encapsulation + Inheritance)
+│   ├── PetTypes.cs            ← CatPet & DogPet (Polymorphism)
+│   ├── TaskItem.cs            ← Task data model
+│   └── ShopItem.cs            ← Shop item model
 │
-├── 📂 Managers/
-│   └── GameManager.cs            ← Core game logic (Abstraction)
+├── Managers/
+│   └── GameManager.cs         ← Core game logic (Abstraction)
 │
-└── 📂 Forms/
-    ├── LoginForm.cs              ← Start screen
-    ├── DashboardForm.cs          ← Main screen (pet + tasks)
-    ├── TaskEditForm.cs           ← Add/Edit task dialog
-    ├── ShopForm.cs               ← Shop system
-    └── StatsForm.cs              ← Productivity analytics
+└── Forms/
+    ├── LoginForm.cs           ← Start / welcome screen
+    ├── DashboardForm.cs       ← Main screen: pet + task list
+    ├── TaskEditForm.cs        ← Add & edit task dialog
+    ├── ShopForm.cs            ← Coin shop
+    └── StatsForm.cs           ← Productivity analytics
 ```
 
 ---
@@ -76,60 +83,49 @@ Pawductivity/
 |---|:---:|
 | Login with username & pet name | ✅ |
 | Choose Cat 🐱 or Dog 🐶 | ✅ |
-| Add / Edit / Delete tasks | ✅ |
+| Add, edit, and delete tasks | ✅ |
 | Complete tasks → pet gains XP & mood | ✅ |
 | Pet levels up and evolves | ✅ |
 | Overdue tasks → pet loses health & mood | ✅ |
-| Shop system with coins | ✅ |
-| Streak tracking | ✅ |
-| Stats & analytics screen | ✅ |
-| Pink kawaii theme throughout | ✅ |
+| Coin-based shop system | ✅ |
+| Daily streak tracking | ✅ |
+| Productivity stats & analytics screen | ✅ |
+| Consistent pink kawaii theme | ✅ |
 
 ---
 
-## 🎓 OOP Principles Applied
+## 🎓 OOP Principles
 
-<table>
-<tr>
-<td width="50%">
+Pawductivity is designed as a showcase of core Object-Oriented Programming concepts:
 
-### 🔒 Encapsulation
-`Pet` uses **private fields** with public properties to protect health, mood, and XP data from direct manipulation.
+### 🔒 Encapsulation — `Pet.cs`
+Pet stats (health, mood, XP) are stored in **private fields** and accessed only through controlled public properties. Nothing outside the class can corrupt the pet's internal state directly.
 
-</td>
-<td width="50%">
+### 🧬 Inheritance — `PetTypes.cs`
+`CatPet` and `DogPet` both **extend** the abstract `Pet` base class. Shared behaviors (leveling up, losing health) live in the parent; each subclass adds its own personality on top.
 
-### 🧬 Inheritance
-`CatPet` and `DogPet` both **extend** the abstract `Pet` base class, sharing common behavior while adding their own personality.
+### 🔀 Polymorphism — `PetTypes.cs`
+Methods like `ReactToTaskCompleted()`, `ReactToTaskMissed()`, and `GetGreeting()` are **overridden** in each subclass. The same method call behaves differently depending on whether the pet is a cat or a dog — no `if/else` type-checking needed.
 
-</td>
-</tr>
-<tr>
-<td width="50%">
-
-### 🔀 Polymorphism
-Methods like `ReactToTaskCompleted()`, `ReactToTaskMissed()`, and `GetGreeting()` **behave differently** depending on whether the pet is a cat or dog.
-
-</td>
-<td width="50%">
-
-### 🏗️ Abstraction
-`GameManager` handles all core logic behind the scenes — forms interact through **clean, high-level methods** without knowing the details.
-
-</td>
-</tr>
-</table>
+### 🏗️ Abstraction — `GameManager.cs`
+All core game logic lives in `GameManager`. The UI forms never touch raw data directly — they call clean, high-level methods like `CompleteTask()` or `BuyItem()` and let the manager handle the rest.
 
 ---
 
-## 🌸 Theme Customization
+## 🌸 Theming
 
-All UI colors are centralized in **`PawTheme.cs`**. Simply modify values like `Primary` and `Background` to instantly retheme the entire application — no hunting through individual forms needed.
+All UI colors and fonts are centralized in **`PawTheme.cs`**. To retheme the entire app, you only need to update values in one file — no digging through individual forms.
+
+```csharp
+// PawTheme.cs — change here, updates everywhere
+public static Color Primary   = Color.FromArgb(255, 105, 180); // hot pink
+public static Color Background = Color.FromArgb(255, 240, 245); // soft blush
+```
 
 ---
 
-<div align="center">
+## 👥 Team
 
-*Made with 💖 by Team LAVA · Batangas State University · CS-2202*
+**Team LAVA** · Section CS-2202 · Batangas State University
 
-</div>
+*Made with 💖 for CS 222 — Advanced Object-Oriented Programming*
