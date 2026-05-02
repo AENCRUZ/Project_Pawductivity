@@ -62,11 +62,11 @@ Pawductivity/
 │   ├── Pet.cs                 ← Abstract base class (Encapsulation + Inheritance)
 │   ├── PetTypes.cs            ← CatPet & DogPet (Polymorphism)
 │   ├── TaskItem.cs            ← Task data model
-│   └── ShopItem.cs            ← Shop item model
+│   ├── ShopItem.cs            ← Shop item model
 │   └── SaveData.cs            ← Serializable snapshot models
 │
 ├── Managers/
-│   └── GameManager.cs         ← Core game logic (Abstraction)
+│   ├── GameManager.cs         ← Core game logic (Abstraction)
 │   └── SaveManager.cs         ← File I/O: save, load, list, delete profiles
 │
 └── Forms/
