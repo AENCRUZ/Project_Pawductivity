@@ -2,10 +2,8 @@ using Pawductivity.Models;
 
 namespace Pawductivity.Managers;
 
-/// <summary>
 /// Holds all runtime state. Acts as the glue between forms.
 /// Demonstrates Abstraction — forms don't know HOW things are stored.
-/// </summary>
 public class GameManager
 {
     public Pet Pet { get; private set; }
@@ -18,10 +16,8 @@ public class GameManager
     public int CurrentStreak { get; private set; }
     public int LongestStreak { get; private set; }
 
-    /// <summary>
     /// Exposed so SaveManager can snapshot it.
     /// Not intended for use in UI code.
-    /// </summary>
     public DateTime? LastCompletionDate { get; private set; }
 
     public GameManager(Pet pet) => Pet = pet;
@@ -79,9 +75,7 @@ public class GameManager
         Tasks.Count == 0 ? 0 : (double)Tasks.Count(t => t.IsCompleted) / Tasks.Count * 100;
 
     // ── Persistence ──────────────────────────────────────────────────
-    /// <summary>
     /// Injects persisted data after construction. Called only by SaveManager.Restore().
-    /// </summary>
     public void RestoreProgress(
         List<TaskItem> tasks,
         int totalCompleted,
