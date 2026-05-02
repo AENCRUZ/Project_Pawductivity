@@ -1,6 +1,6 @@
 namespace Pawductivity.Models;
 
-/// <summary>Cat pet — earns more XP but loses mood faster. (Inheritance + Polymorphism)</summary>
+/// Cat pet — earns more XP but loses mood faster. (Inheritance + Polymorphism)</summary>
 public class CatPet : Pet
 {
     public CatPet(string name) : base(name) { }
@@ -32,7 +32,7 @@ public class CatPet : Pet
     };
 }
 
-/// <summary>Dog pet — more forgiving, spreads rewards more evenly.</summary>
+/// Dog pet — more forgiving, spreads rewards more evenly.</summary>
 public class DogPet : Pet
 {
     public DogPet(string name) : base(name) { }
