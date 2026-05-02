@@ -101,7 +101,7 @@ Your pet evolves through five stages as you level up. Each level costs `current_
 |---|---|---|---|
 | 🥚 **Egg** | 1 | `🥚` | `🥚` |
 | 🐱 **Baby** | 2–3 | `🐱` | `🐶` |
-    | 🐈 **Junior** | 4–6 | `🐈‍⬛` | `🐕` |
+| 🐈 **Junior** | 4–6 | `🐈‍⬛` | `🐕` |
 | 🐈 **Adult** | 7–9 | `🐈` | `🦮` |
 | ✨ **Legend** | 10+ | `✨🐈‍⬛✨` | `✨🐕‍🦺✨` |
 
