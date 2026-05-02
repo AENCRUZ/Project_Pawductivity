@@ -22,9 +22,9 @@
 
 ## 📖 Overview
 
-**Pawductivity** is a gamified productivity desktop app built with .NET WinForms. You adopt a virtual pet — a cat 🐱 or a dog 🐶 — and your tasks directly affect its health and happiness. Complete tasks on time and your pet thrives, levels up, and evolves. Let them go overdue, and your pet suffers the consequences.
+**Pawductivity** is a gamified productivity desktop app built with .NET WinForms. You adopt a virtual pet — a cat 🐱 or a dog 🐶 — and your tasks directly affect its health and happiness. Complete tasks on time and your pet thrives, levels up, and evolves through five distinct stages. Let them go overdue, and your pet suffers the consequences.
 
-It's a productivity tool with stakes.
+It's a productivity tool with stakes — and pixel-art animations to match.
 
 ---
 
@@ -53,28 +53,36 @@ It's a productivity tool with stakes.
 
 ```
 Pawductivity/
-├── Pawductivity.slnx          ← Solution file
-├── Pawductivity.csproj        ← Project file
-├── Program.cs                 ← Entry point
-├── PawTheme.cs                ← Centralized theme (colors & fonts)
+├── Pawductivity.slnx              ← Solution file
+├── Pawductivity.csproj            ← Project file
+├── Program.cs                     ← Entry point
+├── PawTheme.cs                    ← Centralized theme (colors & fonts)
+│
+├── Animations/                    ← Pixel-art animation engine
+│   ├── PetAnimator.cs             ← Core animation engine (stage-aware sprites + effects)
+│   ├── AnimationPanel.cs          ← Transparent panel that hosts PetAnimator
+│   ├── FloatyLabel.cs             ← Floating "+XP" / "+Coins" popup labels
+│   ├── CatSprites.cs              ← All 5 cat stage sprites (procedural GDI+)
+│   ├── DogSprites.cs              ← All 5 dog stage sprites (procedural GDI+)
+│   └── Paw.cs                     ← Centralized pixel colour palette
 │
 ├── Models/
-│   ├── Pet.cs                 ← Abstract base class (Encapsulation + Inheritance)
-│   ├── PetTypes.cs            ← CatPet & DogPet (Polymorphism)
-│   ├── TaskItem.cs            ← Task data model
-│   ├── ShopItem.cs            ← Shop item model
-│   └── SaveData.cs            ← Serializable snapshot models
+│   ├── Pet.cs                     ← Abstract base class (Encapsulation + Inheritance)
+│   ├── PetTypes.cs                ← CatPet & DogPet (Polymorphism)
+│   ├── TaskItem.cs                ← Task data model
+│   ├── ShopItem.cs                ← Shop item model
+│   └── SaveData.cs                ← Serializable snapshot models
 │
 ├── Managers/
-│   ├── GameManager.cs         ← Core game logic (Abstraction)
-│   └── SaveManager.cs         ← File I/O: save, load, list, delete profiles
+│   ├── GameManager.cs             ← Core game logic (Abstraction)
+│   └── SaveManager.cs             ← File I/O: save, load, list, delete profiles
 │
 └── Forms/
-    ├── LoginForm.cs           ← Profile selector & new profile creation
-    ├── DashboardForm.cs       ← Main screen: pet + task list
-    ├── TaskEditForm.cs        ← Add & edit task dialog
-    ├── ShopForm.cs            ← Coin shop
-    └── StatsForm.cs           ← Productivity analytics
+    ├── LoginForm.cs               ← Profile selector & new profile creation
+    ├── DashboardForm.cs           ← Main screen: pet + task list
+    ├── TaskEditForm.cs            ← Add & edit task dialog
+    ├── ShopForm.cs                ← Coin shop
+    └── StatsForm.cs               ← Productivity analytics
 ```
 
 ---
@@ -99,11 +107,13 @@ Your pet evolves through five stages as you level up. Each level costs `current_
 
 | Stage | Level | Cat 🐱 | Dog 🐶 |
 |---|---|---|---|
-| 🥚 **Egg** | 1 | `🥚` | `🥚` |
-| 🐱 **Baby** | 2–3 | `🐱` | `🐶` |
-| 🐈 **Junior** | 4–6 | `🐈‍⬛` | `🐕` |
-| 🐈 **Adult** | 7–9 | `🐈` | `🦮` |
-| ✨ **Legend** | 10+ | `✨🐈‍⬛✨` | `✨🐕‍🦺✨` |
+| 🥚 **Egg** | 1 | Warm shell oval, sleeping eyes | Wider oval with a tiny paw print on the shell |
+| 🐱 **Baby** | 2–3 | Oversized round head, huge eyes, blush spots | Same proportions, stubby floppy ear nubs |
+| 🐈 **Junior** | 4–6 | Tabby stripes on forehead & back, longer whiskers | Speckle markings, longer ears, tail wag begins |
+| 🐈 **Adult** | 7–9 | Sleek adult cat, cheek stripes | Full grown dog with wide snout |
+| ✨ **Legend** | 10+ | Gold crown, teal glowing eyes, orbiting aura | Gold collar + harness, amber eyes, wild wagging tail |
+
+Each stage is drawn procedurally with GDI+ — no external image assets required.
 
 **How XP works:** cats earn more XP per task but lose mood faster when they miss one. Dogs earn slightly less XP but are more forgiving on mood — though they take more health damage.
 
@@ -133,6 +143,47 @@ Your pet evolves through five stages as you level up. Each level costs `current_
 | **Data persistence across sessions** | ✅ |
 | **Multi-profile support** | ✅ |
 | **Atomic save (crash-safe)** | ✅ |
+| **Stage-specific pixel-art sprites** | ✅ |
+| **Per-stage idle animations (blink + breathe)** | ✅ |
+| **Level-up transition animations** | ✅ |
+| **Task complete / overdue / shop animations** | ✅ |
+| **Floating XP / coin / mood labels** | ✅ |
+
+---
+
+## 🎨 Animations
+
+All animations are rendered procedurally using GDI+ — no sprite sheets or external assets needed. The app works out of the box.
+
+### Pet Idle Animations (all stages)
+
+- **Breathing loop** — subtle up/down bob driven by a sine wave (~60 fps). Eggs bob slowly; all other stages use the full range.
+- **Blinking** — randomised every 3–5 seconds. Eggs skip blinking (they're sealed). All other stages close and reopen smoothly across 3 frames.
+- **Legend aura** — at the Legend stage, 8 glowing dots orbit the pet and pulse in sync with the breath phase.
+- **Dog tail wag** — from Junior onward, the dog's tail swings left and right using the breath phase as a driver.
+
+### Level-Up Transition Animations
+
+Each stage change plays a two-phase transition unique to the pet type:
+
+| Transition | Cat 🐱 | Dog 🐶 |
+|---|---|---|
+| 🥚 → 🐱 Baby | Shell shards fly out → pink hearts burst as kitten emerges | Cream shards fly out → paw prints burst as puppy appears |
+| 🐱 → 🐈 Junior | Pink hearts expand outward + ring | Excited paw prints + yellow mood glow ring |
+| 🐈 → 🐈 Adult | Periwinkle double rings + white sparkles | Brown double rings + cream sparkles |
+| 🐈 → ✨ Legend | White flash → gold/diamond explosion + floaty text | Goldenrod flash → gold rings + flying paw prints |
+| Other levels | Gold ring + sparkles | Yellow ring + sparkles |
+
+### Overlay Effect Animations
+
+| Trigger | Animation |
+|---|---|
+| Task completed | `+XP ⭐` and `+😸 Mood` float upward + sparkles radiate outward |
+| Coins earned | `+🪙` floats upward + gold sparkles |
+| Overdue task | `-❤️` and `-😸` descend with red shake crosses |
+| Shop — Star Cookie | "Nom nom! 🍪" + `+❤️ +😸` float up |
+| Shop — Strawberry Milk | `+❤️ Health` floats up + rose sparkles |
+| Shop — any mood item | `+😸 Mood` floats up + yellow sparkles |
 
 ---
 
@@ -226,6 +277,8 @@ public class CatPet : Pet { ... }          // inherits everything, adds cat pers
 public class DogPet  : Pet { ... }         // inherits everything, adds dog personality
 ```
 
+Inheritance also appears in the animation layer. `CatSprites` and `DogSprites` are separate static classes that share the same `DrawEye()` helper from `CatSprites`, keeping eye-rendering logic in one place while each pet type draws its own distinct body.
+
 ---
 
 ### 🔀 Polymorphism — `PetTypes.cs`
@@ -250,7 +303,7 @@ The same call on different pet types produces completely different behavior:
 
 `DashboardForm` and `GameManager` never check `if pet is CatPet` — they just call the method and let the object decide how to respond. That's polymorphism in action.
 
-Polymorphism also appears in `SaveManager.Restore()`: the pet's saved type string (`"Cat"` or `"Dog"`) is used to construct the correct subclass, after which all calls go through the `Pet` interface — no type-checking needed anywhere else.
+Polymorphism also appears in `PetAnimator`: `TriggerLevelUp()` dispatches to `DrawCatLevelUp()` or `DrawDogLevelUp()` based on the current `PetType`, and `DrawCurrentSprite()` routes to the correct stage method inside `CatSprites` or `DogSprites` — the caller never needs to know which one runs.
 
 ---
 
@@ -271,6 +324,8 @@ _gm.BuyItem(selectedItem);
 ```
 
 `StatsForm` reads `_gm.CompletionRate`, `_gm.CurrentStreak`, `_gm.LongestStreak` without knowing how any of those are computed. The decay timer in `DashboardForm` just calls `_gm.ApplyOverduePenalties()` every 60 seconds — it has no idea which tasks are overdue or how much health each one costs.
+
+Abstraction also applies to the animation system. `DashboardForm` only calls `_animPanel.Animator.TriggerLevelUp(level)` — it has no knowledge of rings, sparkles, shards, breath phases, or sprite routing. All of that complexity is encapsulated inside `PetAnimator`.
 
 The same principle extends to persistence. `DashboardForm` calls `SaveManager.Save(_gm)` on close — one line. It doesn't know about JSON, file paths, temp files, or atomic writes. That complexity lives entirely inside `SaveManager`.
 
@@ -300,6 +355,8 @@ public static readonly Font FontSmall   = new("Segoe UI",  8f, FontStyle.Regular
 ```
 
 `PawTheme.StyleButton(btn)` and `PawTheme.StyleButton(btn, outlined: true)` apply consistent pink styling (including hover effects) to every button in the app from a single helper method.
+
+The `AnimationPanel` uses `ControlStyles.SupportsTransparentBackColor` and a custom `OnPaintBackground` override so the pet sprite renders directly over the pink card surface — no black or white box behind the pet.
 
 ---
 
