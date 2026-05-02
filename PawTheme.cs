@@ -1,9 +1,7 @@
 namespace Pawductivity;
 
-/// <summary>
 /// Centralized pink kawaii theme for the entire app.
 /// Change colors here and they update everywhere!
-/// </summary>
 public static class PawTheme
 {
     // ── Colors ──────────────────────────────────────────────────────
@@ -32,7 +30,7 @@ public static class PawTheme
     public static readonly Font FontEmoji   = new("Segoe UI Emoji", 28f);
 
     // ── Helpers ──────────────────────────────────────────────────────
-    /// <summary>Apply cute pink styling to a Button.</summary>
+    /// Apply cute pink styling to a Button.</summary>
     public static void StyleButton(Button btn, bool outlined = false)
     {
         btn.FlatStyle = FlatStyle.Flat;
@@ -52,14 +50,14 @@ public static class PawTheme
         };
     }
 
-    /// <summary>Apply soft-pink styling to a Panel used as a card.</summary>
+    /// Apply soft-pink styling to a Panel used as a card.</summary>
     public static void StyleCard(Panel panel)
     {
         panel.BackColor = Surface;
         panel.Padding   = new Padding(12);
     }
 
-    /// <summary>Apply pink styling to a ProgressBar.</summary>
+    /// Apply pink styling to a ProgressBar.</summary>
     public static void StyleProgressBar(ProgressBar pb, Color fillColor)
     {
         pb.Style = ProgressBarStyle.Continuous;
