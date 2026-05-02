@@ -67,8 +67,12 @@ Pawductivity/
 ├── Managers/
 │   └── GameManager.cs         ← Core game logic (Abstraction)
 │
+├── Persistence/               ← ✨ Data persistence layer
+│   ├── SaveData.cs            ← Serializable snapshot models
+│   └── SaveManager.cs         ← File I/O: save, load, list, delete profiles
+│
 └── Forms/
-    ├── LoginForm.cs           ← Start / welcome screen
+    ├── LoginForm.cs           ← Profile selector & new profile creation
     ├── DashboardForm.cs       ← Main screen: pet + task list
     ├── TaskEditForm.cs        ← Add & edit task dialog
     ├── ShopForm.cs            ← Coin shop
@@ -86,6 +90,54 @@ Login → Add Task → Complete Task → Pet Reacts → Earn Coins → Buy Items
 ```
 
 Every task you complete rewards you and your pet. Every task you miss costs you both. The shop gives you something to work toward, and the streak system keeps you coming back daily.
+
+Progress is **automatically saved** when the app closes and restored when you reopen it — no progress is ever lost.
+
+---
+
+## 💾 Data Persistence
+
+Pawductivity saves all game data to a JSON file stored locally on your machine.
+
+**Save location:** `%AppData%\Pawductivity\{username}.json`
+(e.g. `C:\Users\Marie\AppData\Roaming\Pawductivity\marie.json`)
+
+Each profile gets its own file, so multiple people can use Pawductivity on the same Windows account without overwriting each other's progress.
+
+### What gets saved
+
+| Category | Data |
+|---|---|
+| 🐾 Pet | Name, type, health, mood, XP, level, coins, evolution stage |
+| ✅ Tasks | Title, description, priority, due date, completion status |
+| 🔥 Progress | Total completed, current streak, longest streak, last completion date |
+
+### How it works
+
+- **On startup** — the login screen lists all saved profiles found in `%AppData%\Pawductivity\`. Pick one to continue, or create a new profile.
+- **On exit** — the current state is written to disk using an atomic temp-then-rename write, which prevents file corruption if the app closes unexpectedly.
+- **Corrupt or missing files** — handled gracefully; the app treats them as a new game rather than crashing.
+
+---
+
+## 👤 Profile System
+
+The login screen supports multiple profiles on one machine.
+
+```
+App starts
+    │
+    ▼
+Profile list shown
+    ├── Existing profile → select → Continue → Dashboard
+    │
+    └── "+ New Profile" → enter name, pet name, pet type → Start → Dashboard
+```
+
+- **Returning users** pick their username from a dropdown and click **Continue**.
+- **New users** click **+ New Profile**, fill in their name and pet details, then click **Start**.
+- **Delete profile** permanently removes a profile and all its data.
+- On first launch (no profiles exist), the new-profile panel opens automatically.
 
 ---
 
@@ -126,6 +178,9 @@ Your pet evolves through five stages as you level up. Each level costs `current_
 | Daily streak tracking | ✅ |
 | Productivity stats & analytics screen | ✅ |
 | Consistent pink kawaii theme | ✅ |
+| **Data persistence across sessions** | ✅ |
+| **Multi-profile support** | ✅ |
+| **Atomic save (crash-safe)** | ✅ |
 
 ---
 
@@ -199,6 +254,8 @@ public int Coins
 
 `_level` is even stricter — its setter is `private`, so only `Pet`'s own internal `CheckLevelUp()` method can increment it. No form or manager can manually set the pet's level.
 
+The persistence layer respects this encapsulation too. `SaveManager` calls `pet.RestoreStats(...)` — a dedicated method on `Pet` that writes directly to the backing fields without triggering `CheckLevelUp()`. Saved stats are restored exactly as they were, level-up logic never fires on load.
+
 ---
 
 ### 🧬 Inheritance — `Pet.cs` → `CatPet` / `DogPet`
@@ -241,6 +298,8 @@ The same call on different pet types produces completely different behavior:
 
 `DashboardForm` and `GameManager` never check `if pet is CatPet` — they just call the method and let the object decide how to respond. That's polymorphism in action.
 
+Polymorphism also appears in `SaveManager.Restore()`: the pet's saved type string (`"Cat"` or `"Dog"`) is used to construct the correct subclass, after which all calls go through the `Pet` interface — no type-checking needed anywhere else.
+
 ---
 
 ### 🏗️ Abstraction — `GameManager.cs`
@@ -260,6 +319,8 @@ _gm.BuyItem(selectedItem);
 ```
 
 `StatsForm` reads `_gm.CompletionRate`, `_gm.CurrentStreak`, `_gm.LongestStreak` without knowing how any of those are computed. The decay timer in `DashboardForm` just calls `_gm.ApplyOverduePenalties()` every 60 seconds — it has no idea which tasks are overdue or how much health each one costs.
+
+The same principle extends to persistence. `DashboardForm` calls `SaveManager.Save(_gm)` on close — one line. It doesn't know about JSON, file paths, temp files, or atomic writes. That complexity lives entirely inside `SaveManager`.
 
 ---
 
