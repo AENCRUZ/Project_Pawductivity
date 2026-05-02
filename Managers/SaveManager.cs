@@ -5,17 +5,6 @@ using Pawductivity.Models;
 namespace Pawductivity.Persistence;
 
 /// Handles all disk I/O for Pawductivity save data.
-///
-/// Save location: %AppData%\Pawductivity\{username}.json
-///   e.g. C:\Users\Marie\AppData\Roaming\Pawductivity\marie.json
-///
-/// Each username gets its own file, so multiple people can share
-/// one Windows account without overwriting each other's progress.
-///
-/// Usage:
-///   SaveManager.Save(gm);                        // call on app exit
-///   SaveData? data = SaveManager.Load("marie");  // null = no file yet
-///   string[]  profiles = SaveManager.ListProfiles(); // existing usernames
 public static class SaveManager
 {
     // ── Directory ────────────────────────────────────────────────────
