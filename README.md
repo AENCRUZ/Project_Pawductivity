@@ -63,12 +63,10 @@ Pawductivity/
 │   ├── PetTypes.cs            ← CatPet & DogPet (Polymorphism)
 │   ├── TaskItem.cs            ← Task data model
 │   └── ShopItem.cs            ← Shop item model
+│   └── SaveData.cs            ← Serializable snapshot models
 │
 ├── Managers/
 │   └── GameManager.cs         ← Core game logic (Abstraction)
-│
-├── Persistence/               ← ✨ Data persistence layer
-│   ├── SaveData.cs            ← Serializable snapshot models
 │   └── SaveManager.cs         ← File I/O: save, load, list, delete profiles
 │
 └── Forms/
@@ -95,52 +93,6 @@ Progress is **automatically saved** when the app closes and restored when you re
 
 ---
 
-## 💾 Data Persistence
-
-Pawductivity saves all game data to a JSON file stored locally on your machine.
-
-**Save location:** `%AppData%\Pawductivity\{username}.json`
-(e.g. `C:\Users\Marie\AppData\Roaming\Pawductivity\marie.json`)
-
-Each profile gets its own file, so multiple people can use Pawductivity on the same Windows account without overwriting each other's progress.
-
-### What gets saved
-
-| Category | Data |
-|---|---|
-| 🐾 Pet | Name, type, health, mood, XP, level, coins, evolution stage |
-| ✅ Tasks | Title, description, priority, due date, completion status |
-| 🔥 Progress | Total completed, current streak, longest streak, last completion date |
-
-### How it works
-
-- **On startup** — the login screen lists all saved profiles found in `%AppData%\Pawductivity\`. Pick one to continue, or create a new profile.
-- **On exit** — the current state is written to disk using an atomic temp-then-rename write, which prevents file corruption if the app closes unexpectedly.
-- **Corrupt or missing files** — handled gracefully; the app treats them as a new game rather than crashing.
-
----
-
-## 👤 Profile System
-
-The login screen supports multiple profiles on one machine.
-
-```
-App starts
-    │
-    ▼
-Profile list shown
-    ├── Existing profile → select → Continue → Dashboard
-    │
-    └── "+ New Profile" → enter name, pet name, pet type → Start → Dashboard
-```
-
-- **Returning users** pick their username from a dropdown and click **Continue**.
-- **New users** click **+ New Profile**, fill in their name and pet details, then click **Start**.
-- **Delete profile** permanently removes a profile and all its data.
-- On first launch (no profiles exist), the new-profile panel opens automatically.
-
----
-
 ## 🌱 Pet Evolution
 
 Your pet evolves through five stages as you level up. Each level costs `current_level × 50 XP` — so leveling gets progressively harder.
@@ -149,7 +101,7 @@ Your pet evolves through five stages as you level up. Each level costs `current_
 |---|---|---|---|
 | 🥚 **Egg** | 1 | `🥚` | `🥚` |
 | 🐱 **Baby** | 2–3 | `🐱` | `🐶` |
-| 🐈 **Junior** | 4–6 | `🐈‍⬛` | `🐕` |
+    | 🐈 **Junior** | 4–6 | `🐈‍⬛` | `🐕` |
 | 🐈 **Adult** | 7–9 | `🐈` | `🦮` |
 | ✨ **Legend** | 10+ | `✨🐈‍⬛✨` | `✨🐕‍🦺✨` |
 
