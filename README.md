@@ -356,7 +356,7 @@ public static readonly Font FontSmall   = new("Segoe UI",  8f, FontStyle.Regular
 
 `PawTheme.StyleButton(btn)` and `PawTheme.StyleButton(btn, outlined: true)` apply consistent pink styling (including hover effects) to every button in the app from a single helper method.
 
-The `AnimationPanel` uses `ControlStyles.SupportsTransparentBackColor` and a custom `OnPaintBackground` override so the pet sprite renders directly over the pink card surface — no black or white box behind the pet.
+The `AnimationPanel` uses `ControlStyles.SupportsTransparentBackColor` and a custom `OnPaintBackground` override so the pet sprite renders directly over the pink card surface.
 
 ---
 
