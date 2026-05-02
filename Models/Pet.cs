@@ -3,7 +3,6 @@ namespace Pawductivity.Models;
 public enum PetMood { Happy, Neutral, Sad, Sick }
 public enum PetEvolution { Egg, Baby, Junior, Adult, Legend }
 
-/// <summary>
 /// Base class for all pets. Demonstrates Encapsulation + Inheritance.
 public abstract class Pet
 {
@@ -33,11 +32,7 @@ public abstract class Pet
     public int XP
     {
         get => _xp;
-        set
-        {
-            _xp = value;
-            CheckLevelUp();
-        }
+        set { _xp = value; CheckLevelUp(); }
     }
 
     public int Level
@@ -61,7 +56,6 @@ public abstract class Pet
         _ => PetMood.Sick
     };
 
-    /// <summary>Returns the emoji representing this pet's mood.</summary>
     public string MoodEmoji => CurrentMood switch
     {
         PetMood.Happy => "🐾✨",
@@ -71,16 +65,12 @@ public abstract class Pet
         _ => "🐾"
     };
 
-    /// <summary>
-    /// Returns the emoji representing the pet's evolution stage.
-    /// Can be overridden by specific pet types (e.g., DogPet).
-    /// </summary>
     public virtual string StageEmoji => Stage switch
     {
         PetEvolution.Egg => "🥚",
-        PetEvolution.Baby => "🐱",   // kitten (closest we have)
-        PetEvolution.Junior => "🐈‍⬛", // growing cat
-        PetEvolution.Adult => "🐈",   // adult cat
+        PetEvolution.Baby => "🐱",
+        PetEvolution.Junior => "🐈‍⬛",
+        PetEvolution.Adult => "🐈",
         PetEvolution.Legend => "✨🐈‍⬛✨",
         _ => "🐱"
     };
@@ -101,11 +91,23 @@ public abstract class Pet
     public abstract void ReactToTaskMissed();
     public abstract string GetGreeting();
 
-    // ── Shared logic ─────────────────────────────────────────────────
+    // ── Persistence ──────────────────────────────────────────────────
+    /// Restores all stat values from a save file WITHOUT triggering
+    /// CheckLevelUp. Called only by SaveManager.Restore().
+    public void RestoreStats(int health, int mood, int xp, int level, int coins)
+    {
+        Health = health;
+        Mood = mood;
+        _xp = xp;    // bypass XP property to skip CheckLevelUp
+        _level = level; // bypass Level property (private setter)
+        Coins = coins;
+        Evolve();       // re-derive Stage from the restored level
+    }
+
+    // ── Shared internal logic ────────────────────────────────────────
     private void CheckLevelUp()
     {
         int xpNeeded = _level * 50;
-
         if (_xp >= xpNeeded)
         {
             _xp -= xpNeeded;
